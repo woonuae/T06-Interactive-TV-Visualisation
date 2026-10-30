@@ -1,37 +1,31 @@
-
-// Draw a scatterplot of TV screen size against energy consumption
+// ==========================================
+// INTERACTIVE SCATTERPLOT
+// ==========================================
 
 function drawScatterplot(data) {
     const container = d3.select("#scatterplot");
-    const tooltip = d3.select("#scatter-tooltip");
 
-    // Clear the previous chart before redrawing
     container.selectAll("*").remove();
-    tooltip.classed("visible", false).text("");
 
-    // Display a message if no data is available
     if (!data || data.length === 0) {
         container
-            .append("p")
-            .text("No TV data available for this screen category.");
+            .append("div")
+            .attr("class", "chart-message")
+            .text("No TVs match the selected filters.");
+
         return;
     }
 
-    // Chart dimensions
+    const margin = CHART_MARGIN;
     const width = CHART_WIDTH;
     const height = CHART_HEIGHT;
 
-    const margin = {
-        top: 45,
-        right: 30,
-        bottom: 75,
-        left: 85
-    };
+    const innerWidth =
+        width - margin.left - margin.right;
 
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+    const innerHeight =
+        height - margin.top - margin.bottom;
 
-    // Create the SVG canvas
     const svg = container
         .append("svg")
         .attr("viewBox", `0 0 ${width} ${height}`)
@@ -39,7 +33,7 @@ function drawScatterplot(data) {
         .attr("role", "img")
         .attr(
             "aria-label",
-            "Scatterplot showing TV screen size and energy consumption"
+            "Scatterplot of TV screen size against energy consumption"
         );
 
     // Chart title
@@ -50,23 +44,32 @@ function drawScatterplot(data) {
         .attr("text-anchor", "middle")
         .text("TV Screen Size vs Energy Consumption");
 
-    // Create the plotting area
+    // Plot area
     const chart = svg.append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr(
+            "transform",
+            `translate(${margin.left},${margin.top})`
+        );
 
-    // X scale: TV screen size
+    // X scale: screen size
     const x = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.screenSize))
+        .domain([
+            Math.floor(d3.min(data, d => d.screenSize) / 5) * 5,
+            Math.ceil(d3.max(data, d => d.screenSize) / 5) * 5
+        ])
         .nice()
         .range([0, innerWidth]);
 
     // Y scale: energy consumption
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.energyConsumption) || 1])
+        .domain([
+            0,
+            d3.max(data, d => d.energyConsumption) * 1.1
+        ])
         .nice()
         .range([innerHeight, 0]);
 
-    // Draw horizontal gridlines
+    // Gridlines
     chart.append("g")
         .attr("class", "grid")
         .call(
@@ -76,67 +79,26 @@ function drawScatterplot(data) {
                 .tickFormat("")
         );
 
-    // Draw X axis
+    // X axis
     chart.append("g")
         .attr("class", "axis")
         .attr("transform", `translate(0,${innerHeight})`)
-        .call(d3.axisBottom(x).ticks(10));
+        .call(d3.axisBottom(x));
 
-    // Draw Y axis
+    // Y axis
     chart.append("g")
         .attr("class", "axis")
-        .call(d3.axisLeft(y).ticks(6));
-
-    // Draw one circle for each TV
-    chart.selectAll(".dot")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("class", "dot")
-        .attr("cx", d => x(d.screenSize))
-        .attr("cy", d => y(d.energyConsumption))
-        .attr("r", 5)
-        .on("mouseenter", function (event, d) {
-            d3.select(this)
-                .attr("r", 8)
-                .attr("fill", CHART_COLOURS.primaryHover);
-
-            tooltip
-                .classed("visible", true)
-                .text(
-                    `Brand: ${d.brand} | ` +
-                    `Model: ${d.model} | ` +
-                    `Screen size: ${d.screenSize} inches | ` +
-                    `Energy consumption: ${d.energyConsumption} | ` +
-                    `Screen technology: ${d.screenTech} | ` +
-                    `Star rating: ${d.star}`
-                );
-        })
-        .on("mousemove", function (event) {
-            // Keep the tooltip visible while the pointer moves
-            tooltip.classed("visible", true);
-        })
-        .on("mouseleave", function () {
-            d3.select(this)
-                .attr("r", 5)
-                .attr("fill", CHART_COLOURS.primary);
-
-            tooltip
-                .classed("visible", false)
-                .text("");
-        })
-        .append("title")
-        .text(d =>
-            `${d.brand} ${d.model}: ` +
-            `${d.screenSize} inches, ` +
-            `${d.energyConsumption} energy consumption`
+        .call(
+            d3.axisLeft(y)
+                .ticks(6)
+                .tickFormat(d3.format(","))
         );
 
     // X axis label
     chart.append("text")
         .attr("class", "axis-label")
         .attr("x", innerWidth / 2)
-        .attr("y", innerHeight + 55)
+        .attr("y", innerHeight + 48)
         .attr("text-anchor", "middle")
         .text("Screen Size (inches)");
 
@@ -145,7 +107,90 @@ function drawScatterplot(data) {
         .attr("class", "axis-label")
         .attr("transform", "rotate(-90)")
         .attr("x", -innerHeight / 2)
-        .attr("y", -58)
+        .attr("y", -50)
         .attr("text-anchor", "middle")
         .text("Energy Consumption");
+
+    // Scatterplot points
+    chart.selectAll(".dot")
+        .data(data)
+        .join("circle")
+        .attr("class", "dot")
+        .attr("cx", d => x(d.screenSize))
+        .attr("cy", d => y(d.energyConsumption))
+        .attr("r", 5)
+        .attr("tabindex", 0)
+        .attr("role", "button")
+        .attr("aria-label", d =>
+            `${d.brand} ${d.model}, ${d.screenSize} inches, ` +
+            `${d.energyConsumption} energy consumption`
+        )
+        .on("mouseenter", function (event, d) {
+            d3.select(this)
+                .attr("r", 8)
+                .attr("fill", "#8c78f5");
+
+            showScatterTooltip(d);
+        })
+        .on("mouseleave", function () {
+            d3.select(this)
+                .attr("r", 5)
+                .attr("fill", null);
+
+            hideScatterTooltip();
+        })
+        .on("focus", function (event, d) {
+            d3.select(this)
+                .attr("r", 8);
+
+            showScatterTooltip(d);
+        })
+        .on("blur", function () {
+            d3.select(this)
+                .attr("r", 5);
+
+            hideScatterTooltip();
+        });
+}
+
+
+// Show information for the selected TV
+function showScatterTooltip(d) {
+    const tooltip = d3.select("#scatter-tooltip");
+
+    tooltip
+        .classed("visible", true)
+        .html(
+            `<strong>Brand:</strong> ${escapeHTML(d.brand)}<br>` +
+            `<strong>Model:</strong> ${escapeHTML(d.model)}<br>` +
+            `<strong>Screen size:</strong> ${d.screenSize} inches<br>` +
+            `<strong>Screen technology:</strong> ${escapeHTML(d.screenTech)}<br>` +
+            `<strong>Energy consumption:</strong> ${d.energyConsumption.toLocaleString()}<br>` +
+            `<strong>Star rating:</strong> ${
+                Number.isFinite(d.star) ? d.star : "Not available"
+            }`
+        );
+}
+
+
+// Hide the tooltip
+function hideScatterTooltip() {
+    d3.select("#scatter-tooltip")
+        .classed("visible", false);
+}
+
+
+// Escape text from the CSV before inserting it into HTML
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function (character) {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        };
+
+        return entities[character];
+    });
 }

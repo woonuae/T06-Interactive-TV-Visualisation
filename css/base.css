@@ -1,106 +1,457 @@
-/* Main site stylesheet — layout, typography and theme colors */
-:root{
-  --accent: #c65a20; /* warm orange */
-  --accent-dark: #a14812;
-  --bg: #fbf2e8; /* light cream */
-  --surface: #ffffff;
-  --text: #5a3e2b; /* dark brown */
-  --muted: #6b5e53;
-  --radius: 8px;
+
+/* ==========================================
+   TV DATA VISUALISATION
+   Pastel Pink & Lavender Theme
+   ========================================== */
+
+/* ---------- 1. Colour palette ---------- */
+
+:root {
+    --purple: #9185ff;
+    --purple-dark: #7163e8;
+    --purple-light: #eee9ff;
+
+    --pink: #f58bc6;
+    --pink-light: #fff0f8;
+
+    --blue-light: #dce8ff;
+
+    --background: #f8f5ff;
+    --card-background: rgba(255, 255, 255, 0.92);
+
+    --text: #30265f;
+    --text-muted: #77719e;
+
+    --border: #e8e0ff;
+    --grid: #e5def8;
+
+    --shadow: 0 10px 30px rgba(120, 95, 190, 0.10);
 }
 
-/* Page reset and basic typography */
-html,body{
-  height:100%;
-}
-body{
-  margin:0;
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  line-height:1.5;
+/* ---------- 2. General page styling ---------- */
+
+* {
+    box-sizing: border-box;
 }
 
-a{ color: var(--accent-dark); text-decoration: none; }
-a:hover{ text-decoration: underline; }
-
-/* Header */
-header{
-  background:var(--accent);
-  color:white;
-  padding:22px 24px;
-  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.06);
-}
-header h1{
-  margin:0;
-  font-size:28px;
-  font-weight:700;
+html {
+    scroll-behavior: smooth;
 }
 
-/* Main content area */
-main{ padding:28px 24px; }
-main > div{ max-width:1000px; margin:0 auto; }
+body {
+    margin: 0;
+    min-height: 100vh;
 
-h1,h2,h3{
-  color:var(--text);
-  margin:0 0 12px 0;
-}
-h1{ font-size:28px; }
-h2{ font-size:22px; }
-h3{ font-size:18px; }
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text);
 
-p{ margin:0 0 16px 0; color: #3f2f28; }
-
-/* Filters/buttons */
-#filters_screen{ display:flex; gap:12px; flex-wrap:wrap; margin:14px 0 18px 0; }
-
-/* Filter buttons — use classes so we can toggle active state */
-#filters_screen .filter{
-  border: none;
-  background: var(--accent); /* dark orange by default */
-  color: white;
-  padding:8px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.08);
+    background:
+        radial-gradient(
+            circle at 10% 5%,
+            rgba(255, 220, 245, 0.85),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 90% 20%,
+            rgba(216, 208, 255, 0.85),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #fff8fd,
+            #f1edff 55%,
+            #fff1fa
+        );
 }
 
-/* Active filter: pale background, dark text */
-#filters_screen .filter.active{
-  background: #f3d9b9; /* pale/light orange */
-  color: var(--text);
+/* ---------- 3. Header ---------- */
+
+header {
+    padding: 3rem 2rem;
+    text-align: center;
+
+    background: linear-gradient(
+        120deg,
+        #ddd5ff 0%,
+        #f9dff2 50%,
+        #e5e8ff 100%
+    );
+
+    border-bottom: 1px solid var(--border);
 }
 
-#filters_screen .filter:focus{ outline:2px solid rgba(0,0,0,0.08); }
+header h1 {
+    margin: 0 0 0.8rem;
+    color: var(--text);
 
-/* Chart container - keep a little spacing */
-.responsive-svg-container{
-  width:100%;
-  max-width:1000px;
-  margin-bottom:28px;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -1px;
 }
 
-/* Data source note */
-.body{ margin-top:10px; color:#3f2f28; }
-.body a{ color:var(--accent-dark); font-weight:600; }
+header p {
+    max-width: 800px;
+    margin: 0 auto;
 
-/* Footer */
-footer{
-  background: #5a3e2b; /* dark brown */
-  color: #ffffff;
-  padding:14px 24px;
-  margin-top:24px;
+    color: #665c99;
+    font-size: 1.1rem;
+    line-height: 1.7;
 }
-footer p{ margin:0; text-align:center; font-size:14px; }
 
-/* Small utility */
-.lead{ font-size:16px; color:#4a362e; }
+/* ---------- 4. Main layout ---------- */
 
-@media screen and (max-width:596px){
-  header h1{ font-size:20px; }
-  main{ padding:18px 14px; }
-  #filters_screen button{ padding:8px 10px; }
+main {
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+main section {
+    margin-bottom: 1.5rem;
+}
+
+h2 {
+    color: var(--text);
+    font-size: 1.6rem;
+    line-height: 1.3;
+}
+
+main section > p {
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+/* ---------- 5. Filter section ---------- */
+
+#filters_screen {
+    padding: 1.5rem;
+
+    background: var(--card-background);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+
+    box-shadow: var(--shadow);
+}
+
+#filters_screen h2 {
+    margin-top: 0;
+}
+
+#screen-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+
+    margin-top: 1rem;
+}
+
+/* Filter buttons */
+
+#screen-filters .filter {
+    padding: 0.75rem 1.6rem;
+
+    border: 1.5px solid #d9d0ff;
+    border-radius: 999px;
+
+    background: #ffffff;
+    color: var(--purple-dark);
+
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#screen-filters .filter:hover {
+    background: var(--purple-light);
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 14px rgba(145, 133, 255, 0.18);
+}
+
+#screen-filters .filter.active {
+    background: linear-gradient(
+        135deg,
+        #8175f5,
+        #b59aff
+    );
+
+    color: #ffffff;
+    border-color: transparent;
+
+    box-shadow:
+        0 5px 14px rgba(113, 99, 232, 0.25);
+}
+
+#screen-filters .filter:focus-visible {
+    outline: 3px solid var(--pink);
+    outline-offset: 3px;
+}
+
+/* ---------- 6. Histogram and scatterplot cards ---------- */
+
+#histogram-section,
+#scatterplot-section {
+    padding: 1.5rem;
+
+    background: var(--card-background);
+
+    border: 1px solid var(--border);
+    border-radius: 24px;
+
+    box-shadow: var(--shadow);
+
+    transition: box-shadow 0.2s ease;
+}
+
+#histogram-section:hover,
+#scatterplot-section:hover {
+    box-shadow:
+        0 14px 36px rgba(120, 95, 190, 0.15);
+}
+
+#histogram-section h2,
+#scatterplot-section h2 {
+    margin-top: 0;
+    margin-bottom: 0.7rem;
+}
+
+#histogram-section p,
+#scatterplot-section p {
+    margin-top: 0.5rem;
+}
+
+/* ---------- 7. SVG chart containers ---------- */
+
+#histogram,
+#scatterplot {
+    width: 100%;
+    min-height: 320px;
+
+    margin: 1.5rem 0 0.5rem;
+
+    overflow-x: auto;
+}
+
+#histogram svg,
+#scatterplot svg {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Chart titles */
+
+.chart-title {
+    fill: var(--text);
+
+    font-size: 19px;
+    font-weight: 700;
+}
+
+/* ---------- 8. Chart axes ---------- */
+
+.axis path,
+.axis line {
+    stroke: #bcb2e4;
+    stroke-width: 1;
+}
+
+.axis text {
+    fill: var(--text-muted);
+    font-size: 12px;
+}
+
+.axis-label {
+    fill: #62549f;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ---------- 9. Histogram bars ---------- */
+
+.bar {
+    fill: #a99aff;
+
+    stroke: #ffffff;
+    stroke-width: 1.5px;
+
+    transition:
+        fill 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.bar:hover {
+    fill: #7764e8;
+}
+
+/* ---------- 10. Scatterplot points ---------- */
+
+.dot {
+    fill: #f18bc8;
+
+    stroke: #ffffff;
+    stroke-width: 1.5px;
+
+    opacity: 0.85;
+
+    transition:
+        fill 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.dot:hover {
+    fill: #8c78f5;
+
+    stroke: #6655d8;
+    stroke-width: 2.5px;
+
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* ---------- 11. Chart gridlines ---------- */
+
+.grid line {
+    stroke: var(--grid);
+    stroke-opacity: 1;
+    stroke-dasharray: 4 3;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    display: none;
+}
+
+/* ---------- 12. Scatterplot tooltip ---------- */
+
+.tooltip {
+    display: none;
+
+    max-width: 100%;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+
+    background: linear-gradient(
+        120deg,
+        #fff0fa,
+        #f0eaff
+    );
+
+    border: 1px solid #eed5ff;
+    border-radius: 16px;
+
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.8;
+
+    overflow-wrap: anywhere;
+
+    box-shadow:
+        0 5px 18px rgba(145, 133, 255, 0.12);
+}
+
+.tooltip.visible {
+    display: block;
+}
+
+/* ---------- 13. Footer ---------- */
+
+footer {
+    padding: 1.5rem 1rem;
+
+    background: linear-gradient(
+        120deg,
+        #e9e2ff,
+        #fbe1f3
+    );
+
+    border-top: 1px solid var(--border);
+
+    color: var(--text-muted);
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+    line-height: 1.7;
+}
+
+/* ---------- 14. Responsive design ---------- */
+
+@media (max-width: 768px) {
+    header {
+        padding: 2rem 1rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    header p {
+        font-size: 1rem;
+    }
+
+    main {
+        padding: 1rem;
+    }
+
+    #filters_screen,
+    #histogram-section,
+    #scatterplot-section {
+        padding: 1rem;
+        border-radius: 18px;
+    }
+
+    #screen-filters {
+        gap: 0.5rem;
+    }
+
+    #screen-filters .filter {
+        padding: 0.65rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #histogram,
+    #scatterplot {
+        min-height: 260px;
+    }
+
+    .chart-title {
+        font-size: 15px;
+    }
+
+    .axis text {
+        font-size: 10px;
+    }
+
+    .axis-label {
+        font-size: 11px;
+    }
+}
+
+/* ---------- 15. Accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+    }
 }

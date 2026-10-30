@@ -1,48 +1,45 @@
-
-// Draw an interactive histogram of TV screen sizes
+// ==========================================
+// INTERACTIVE HISTOGRAM
+// ==========================================
 
 function drawHistogram(data) {
     const container = d3.select("#histogram");
 
-    // Clear the previous chart before redrawing
+    // Clear the previous chart and tooltip
     container.selectAll("*").remove();
 
-    // Display a message if there is no data
     if (!data || data.length === 0) {
         container
-            .append("p")
-            .text("No TV data available for this screen category.");
+            .append("div")
+            .attr("class", "chart-message")
+            .text("No TVs match the selected filters.");
+
         return;
     }
 
-    // Chart dimensions
+    const margin = CHART_MARGIN;
     const width = CHART_WIDTH;
     const height = CHART_HEIGHT;
 
-    const margin = {
-        top: 45,
-        right: 30,
-        bottom: 75,
-        left: 75
-    };
+    const innerWidth =
+        width - margin.left - margin.right;
 
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+    const innerHeight =
+        height - margin.top - margin.bottom;
 
-    // Find the minimum and maximum screen sizes
-    const minScreenSize = d3.min(data, d => d.screenSize);
-    const maxScreenSize = d3.max(data, d => d.screenSize);
+    // Create tooltip
+    const tooltip = container
+        .append("div")
+        .attr("class", "histogram-tooltip")
+        .attr("role", "status");
 
-    // Create the SVG canvas
+    // Create SVG
     const svg = container
         .append("svg")
         .attr("viewBox", `0 0 ${width} ${height}`)
         .attr("preserveAspectRatio", "xMidYMid meet")
         .attr("role", "img")
-        .attr(
-            "aria-label",
-            "Histogram showing the distribution of TV screen sizes"
-        );
+        .attr("aria-label", "Histogram showing TV screen-size distribution");
 
     // Chart title
     svg.append("text")
@@ -52,34 +49,47 @@ function drawHistogram(data) {
         .attr("text-anchor", "middle")
         .text("Distribution of TV Screen Sizes");
 
-    // Create the plotting area
+    // Chart drawing area
     const chart = svg.append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr(
+            "transform",
+            `translate(${margin.left},${margin.top})`
+        );
 
-    // X scale for screen size
+    // Calculate screen-size range
+    const minSize = d3.min(data, d => d.screenSize);
+    const maxSize = d3.max(data, d => d.screenSize);
+
+    let xMin = Math.floor(minSize / 5) * 5;
+    let xMax = Math.ceil(maxSize / 5) * 5;
+
+    if (xMin === xMax) {
+        xMin -= 5;
+        xMax += 5;
+    }
+
+    // X scale
     const x = d3.scaleLinear()
-        .domain([
-            Math.max(0, minScreenSize - 1),
-            maxScreenSize + 1
-        ])
-        .nice()
+        .domain([xMin, xMax])
         .range([0, innerWidth]);
 
-    // Group screen sizes into histogram bins
-    const histogram = d3.bin()
+    // Create histogram bins
+    const binGenerator = d3.bin()
         .value(d => d.screenSize)
         .domain(x.domain())
-        .thresholds(10);
+        .thresholds(d3.range(xMin + 5, xMax, 5));
 
-    const bins = histogram(data);
+    const bins = binGenerator(data);
 
-    // Y scale for the number of TVs in each bin
+    // Y scale
+    const maxCount = d3.max(bins, bin => bin.length) || 1;
+
     const y = d3.scaleLinear()
-        .domain([0, d3.max(bins, d => d.length) || 1])
+        .domain([0, maxCount * 1.12])
         .nice()
         .range([innerHeight, 0]);
 
-    // Draw horizontal gridlines
+    // Horizontal gridlines
     chart.append("g")
         .attr("class", "grid")
         .call(
@@ -89,31 +99,13 @@ function drawHistogram(data) {
                 .tickFormat("")
         );
 
-    // Draw histogram bars
-    chart.selectAll(".bar")
-        .data(bins)
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .attr("x", d => x(d.x0) + 1)
-        .attr("y", d => y(d.length))
-        .attr("width", d => Math.max(
-            0,
-            x(d.x1) - x(d.x0) - 2
-        ))
-        .attr("height", d => innerHeight - y(d.length))
-        .append("title")
-        .text(d =>
-            `TVs: ${d.length}\nScreen size: ${d.x0}–${d.x1} inches`
-        );
-
     // X axis
     chart.append("g")
         .attr("class", "axis")
         .attr("transform", `translate(0,${innerHeight})`)
         .call(
             d3.axisBottom(x)
-                .ticks(10)
+                .ticks(Math.min(12, Math.ceil((xMax - xMin) / 5)))
                 .tickFormat(d3.format("~g"))
         );
 
@@ -130,7 +122,7 @@ function drawHistogram(data) {
     chart.append("text")
         .attr("class", "axis-label")
         .attr("x", innerWidth / 2)
-        .attr("y", innerHeight + 55)
+        .attr("y", innerHeight + 48)
         .attr("text-anchor", "middle")
         .text("Screen Size (inches)");
 
@@ -142,4 +134,71 @@ function drawHistogram(data) {
         .attr("y", -50)
         .attr("text-anchor", "middle")
         .text("Number of TVs");
+
+    // Draw histogram bars
+    chart.selectAll(".bar")
+        .data(bins)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", bin => x(bin.x0) + 1)
+        .attr("y", bin => y(bin.length))
+        .attr("width", bin =>
+            Math.max(0, x(bin.x1) - x(bin.x0) - 2)
+        )
+        .attr("height", bin =>
+            Math.max(0, innerHeight - y(bin.length))
+        )
+        .attr("tabindex", 0)
+        .attr("role", "img")
+        .attr("aria-label", bin =>
+            `${bin.x0} to ${bin.x1} inches: ${bin.length} TVs`
+        )
+        .on("mouseenter", function (event, bin) {
+            d3.select(this).attr("fill", "#7764e8");
+
+            tooltip
+                .classed("visible", true)
+                .html(
+                    `<strong>Screen-size range:</strong> ` +
+                    `${bin.x0}–${bin.x1} inches<br>` +
+                    `<strong>Number of TVs:</strong> ${bin.length}`
+                );
+
+            positionHistogramTooltip(event, tooltip);
+        })
+        .on("mousemove", function (event) {
+            positionHistogramTooltip(event, tooltip);
+        })
+        .on("mouseleave", function () {
+            d3.select(this).attr("fill", null);
+            tooltip.classed("visible", false);
+        })
+        .on("focus", function (event, bin) {
+            tooltip
+                .classed("visible", true)
+                .html(
+                    `<strong>Screen-size range:</strong> ` +
+                    `${bin.x0}–${bin.x1} inches<br>` +
+                    `<strong>Number of TVs:</strong> ${bin.length}`
+                );
+        })
+        .on("blur", function () {
+            tooltip.classed("visible", false);
+        });
+}
+
+
+// Position the histogram tooltip near the mouse
+function positionHistogramTooltip(event, tooltip) {
+    const containerNode =
+        document.getElementById("histogram");
+
+    const bounds = containerNode.getBoundingClientRect();
+
+    const x = event.clientX - bounds.left + 12;
+    const y = event.clientY - bounds.top + 12;
+
+    tooltip
+        .style("left", `${Math.max(0, x)}px`)
+        .style("top", `${Math.max(0, y)}px`);
 }

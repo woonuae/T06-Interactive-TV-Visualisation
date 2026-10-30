@@ -1,15 +1,16 @@
-// Shared constants used by the TV visualisation charts
+
+// Shared constants for the TV visualisation
 
 const DATA_PATH = "data/Ex6_TVdata.csv";
 
-// Shared chart dimensions
+// Chart dimensions
 const CHART_WIDTH = 800;
 const CHART_HEIGHT = 450;
 
 const CHART_MARGIN = {
-    top: 30,
+    top: 50,
     right: 30,
-    bottom: 65,
+    bottom: 70,
     left: 75
 };
 
@@ -20,13 +21,14 @@ const INNER_WIDTH =
 const INNER_HEIGHT =
     CHART_HEIGHT - CHART_MARGIN.top - CHART_MARGIN.bottom;
 
-// Shared colours
+// Colours
 const CHART_COLOURS = {
-    primary: "#d97736",
-    primaryHover: "#a94f24",
-    text: "#4b3024",
-    grid: "#e7d8c9",
-    background: "#fff8ef"
+    primary: "#a99aff",
+    primaryHover: "#7764e8",
+    pink: "#f18bc8",
+    text: "#30265f",
+    grid: "#e5def8",
+    background: "#ffffff"
 };
 
 // CSV column names
@@ -41,4 +43,6 @@ const DATA_COLUMNS = {
 
 // Shared data and filter state
 let tvData = [];
+
 let selectedScreenCategory = "All";
+let selectedScreenSize = "All";

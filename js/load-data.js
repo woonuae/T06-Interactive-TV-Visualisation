@@ -1,7 +1,7 @@
 // Load and prepare the TV dataset
 
 function loadTVData() {
-    return d3.csv(DATA_PATH, function (row) {
+    d3.csv(DATA_PATH, function (row) {
         return {
             brand: row[DATA_COLUMNS.brand],
             model: row[DATA_COLUMNS.model],
@@ -12,7 +12,7 @@ function loadTVData() {
         };
     })
     .then(function (data) {
-        // Keep rows with valid values needed for the charts
+        // Keep rows with valid chart values
         tvData = data.filter(function (d) {
             return Number.isFinite(d.screenSize) &&
                    Number.isFinite(d.energyConsumption) &&
@@ -20,10 +20,11 @@ function loadTVData() {
                    d.screenTech !== "";
         });
 
-        // Build the screen technology filter buttons
+        // Create both filter groups
         createScreenFilters(tvData);
+        createSizeFilters(tvData);
 
-        // Draw both charts using the loaded dataset
+        // Draw charts
         updateVisualisations();
 
         console.log("TV data loaded:", tvData.length, "records");
@@ -31,33 +32,30 @@ function loadTVData() {
     .catch(function (error) {
         console.error("Error loading TV data:", error);
 
-        const histogram = document.getElementById("histogram");
-        const scatterplot = document.getElementById("scatterplot");
+        d3.select("#histogram")
+            .text("Unable to load the TV dataset. Check the CSV file path.");
 
-        if (histogram) {
-            histogram.textContent =
-                "Unable to load the TV dataset. Please check the CSV file path.";
-        }
-
-        if (scatterplot) {
-            scatterplot.textContent =
-                "The scatterplot could not be displayed because the data failed to load.";
-        }
+        d3.select("#scatterplot")
+            .text("The scatterplot could not be displayed because the data failed to load.");
     });
 }
 
-// Return the data currently selected by the screen technology filter
+
+// Apply both filters simultaneously
 function getFilteredTVData() {
-    if (selectedScreenCategory === "All") {
-        return tvData;
-    }
-
     return tvData.filter(function (d) {
-        return d.screenTech === selectedScreenCategory;
+        const matchesCategory =
+            selectedScreenCategory === "All" ||
+            d.screenTech === selectedScreenCategory;
+
+        const matchesSize =
+            selectedScreenSize === "All" ||
+            d.screenSize === Number(selectedScreenSize);
+
+        return matchesCategory && matchesSize;
     });
 }
 
-// Start loading the dataset after the page has loaded
-document.addEventListener("DOMContentLoaded", function () {
-    loadTVData();
-});
+
+// Start loading after the page has loaded
+document.addEventListener("DOMContentLoaded", loadTVData);

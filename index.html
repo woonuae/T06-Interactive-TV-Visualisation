@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +7,11 @@
 
     <title>TV Screen Size & Energy Visualisation</title>
 
+    <!-- CSS files -->
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/visualisations.css">
 
+    <!-- D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 
@@ -19,31 +22,49 @@
     </header>
 
     <main>
+        <!-- Technology filters -->
         <section id="filters_screen">
             <h2>Filter by TV Screen Category</h2>
-            <div id="screen-filters" class="filters">
-                <button class="filter active" data-category="All">All TVs</button>
-            </div>
+            <div id="screen-filters" class="filters"></div>
         </section>
 
+        <!-- Screen-size filters -->
+        <section id="filters_size">
+            <h2>Filter by TV Screen Size</h2>
+            <div id="size-filters" class="filters"></div>
+        </section>
+
+        <!-- Histogram -->
         <section id="histogram-section">
             <h2>Interactive Histogram</h2>
-            <p>Explore the distribution of TV screen sizes. Select a category to filter the data.</p>
+            <p>
+                Explore the distribution of TV screen sizes.
+                Hover over a bar to see its screen-size range and TV count.
+            </p>
             <div id="histogram"></div>
         </section>
 
+        <!-- Scatterplot -->
         <section id="scatterplot-section">
             <h2>Interactive Scatterplot</h2>
-            <p>Hover over a point to inspect a TV's screen size and energy consumption.</p>
+            <p>
+                Hover over a point to inspect the TV's brand, model,
+                screen size and energy consumption.
+            </p>
             <div id="scatterplot"></div>
-            <div id="scatter-tooltip" class="tooltip" role="status"></div>
+            <div id="scatter-tooltip"
+                 class="tooltip"
+                 role="status"
+                 aria-live="polite"></div>
         </section>
     </main>
 
     <footer>
         <p>TV Data Visualisation | T06</p>
+        <p>Created by: YOUR NAME</p>
     </footer>
 
+    <!-- JavaScript files: keep this order -->
     <script src="js/shared-constants.js"></script>
     <script src="js/load-data.js"></script>
     <script src="js/interactions.js"></script>

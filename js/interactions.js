@@ -1,65 +1,113 @@
-// Create filter buttons for each TV screen technology
+// ==========================================
+// TECHNOLOGY FILTERS
+// ==========================================
 
 function createScreenFilters(data) {
-    const filterContainer = d3.select("#screen-filters");
+    const container = d3.select("#screen-filters");
 
-    // Clear existing buttons to prevent duplicates
-    filterContainer.selectAll("button").remove();
+    const categories = [
+        "All",
+        ...Array.from(
+            new Set(data.map(d => d.screenTech))
+        ).sort()
+    ];
 
-    // Get unique screen technologies from the dataset
-    const screenCategories = Array.from(
-        new Set(data.map(function (d) {
-            return d.screenTech;
-        }))
-    ).sort();
-
-    // Include the option to display all TVs
-    const categories = ["All", ...screenCategories];
-
-    // Create one button for each category
-    filterContainer
+    container
         .selectAll("button")
         .data(categories)
-        .enter()
-        .append("button")
+        .join("button")
         .attr("type", "button")
-        .attr("class", function (category) {
-            return category === selectedScreenCategory
+        .attr("class", category =>
+            category === selectedScreenCategory
                 ? "filter active"
-                : "filter";
-        })
-        .attr("data-category", function (category) {
-            return category;
-        })
-        .text(function (category) {
-            return category === "All" ? "All TVs" : category;
-        })
+                : "filter"
+        )
+        .attr("data-category", category => category)
+        .text(category =>
+            category === "All" ? "All TVs" : category
+        )
         .on("click", function (event, category) {
-            // Update the selected category
             selectedScreenCategory = category;
 
-            // Update the active button appearance
-            filterContainer
-                .selectAll("button")
-                .classed("active", function (buttonCategory) {
-                    return buttonCategory === selectedScreenCategory;
-                });
-
-            // Redraw both charts with the filtered data
+            updateFilterButtonStyles();
             updateVisualisations();
         });
 }
 
-// Refresh both charts using the currently selected filter
+
+// ==========================================
+// SCREEN-SIZE FILTERS
+// ==========================================
+
+function createSizeFilters(data) {
+    const container = d3.select("#size-filters");
+
+    // Required sizes from the assignment example
+    const preferredSizes = [24, 32, 55, 65, 98];
+
+    // Keep only sizes that actually exist in the dataset
+    const availableSizes = new Set(
+        data.map(d => d.screenSize)
+    );
+
+    const sizes = [
+        "All",
+        ...preferredSizes.filter(size => availableSizes.has(size))
+    ];
+
+    container
+        .selectAll("button")
+        .data(sizes)
+        .join("button")
+        .attr("type", "button")
+        .attr("class", size =>
+            String(size) === selectedScreenSize
+                ? "filter active"
+                : "filter"
+        )
+        .attr("data-size", size => size)
+        .text(size =>
+            size === "All" ? "All Sizes" : `${size}"`
+        )
+        .on("click", function (event, size) {
+            selectedScreenSize = String(size);
+
+            updateFilterButtonStyles();
+            updateVisualisations();
+        });
+}
+
+
+// ==========================================
+// UPDATE BUTTON STYLES
+// ==========================================
+
+function updateFilterButtonStyles() {
+    d3.select("#screen-filters")
+        .selectAll("button")
+        .classed("active", function () {
+            return this.dataset.category === selectedScreenCategory;
+        });
+
+    d3.select("#size-filters")
+        .selectAll("button")
+        .classed("active", function () {
+            return this.dataset.size === selectedScreenSize;
+        });
+}
+
+
+// ==========================================
+// REDRAW BOTH CHARTS
+// ==========================================
+
 function updateVisualisations() {
     const filteredData = getFilteredTVData();
 
-    // Update the histogram if its drawing function is available
     if (typeof drawHistogram === "function") {
         drawHistogram(filteredData);
     }
 
-    // Update the scatterplot if its drawing function is available
     if (typeof drawScatterplot === "function") {
         drawScatterplot(filteredData);
     }
