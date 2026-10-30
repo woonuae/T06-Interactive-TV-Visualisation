@@ -1,0 +1,149 @@
+/* General visualisation layout */
+#histogram,
+#scatterplot {
+    width: 100%;
+    min-height: 320px;
+    margin: 1rem 0 2rem;
+    overflow-x: auto;
+}
+
+#histogram svg,
+#scatterplot svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: inherit;
+}
+
+/* Chart titles and axis labels */
+.chart-title {
+    font-size: 18px;
+    font-weight: 700;
+    fill: #4b3024;
+}
+
+.axis path,
+.axis line {
+    stroke: #8b7568;
+    stroke-width: 1;
+}
+
+.axis text {
+    font-size: 12px;
+    fill: #4b3024;
+}
+
+.axis-label {
+    font-size: 13px;
+    font-weight: 600;
+    fill: #4b3024;
+}
+
+/* Histogram bars */
+.bar {
+    fill: #d97736;
+    stroke: #fff8ef;
+    stroke-width: 1;
+    transition: fill 0.15s ease;
+}
+
+.bar:hover {
+    fill: #a94f24;
+}
+
+.bar-label {
+    font-size: 11px;
+    fill: #4b3024;
+    text-anchor: middle;
+}
+
+/* Scatterplot points */
+.dot {
+    fill: #d97736;
+    stroke: #fff8ef;
+    stroke-width: 1;
+    opacity: 0.8;
+    transition: opacity 0.15s ease, r 0.15s ease;
+}
+
+.dot:hover {
+    opacity: 1;
+    stroke: #4b3024;
+    stroke-width: 2;
+}
+
+/* Gridlines */
+.grid line {
+    stroke: #e7d8c9;
+    stroke-opacity: 0.8;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    display: none;
+}
+
+/* Screen category filter buttons */
+#filters_screen {
+    margin-bottom: 1.5rem;
+}
+
+#screen-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+}
+
+#screen-filters .filter {
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+#screen-filters .filter:focus-visible {
+    outline: 3px solid #4b3024;
+    outline-offset: 3px;
+}
+
+/* Scatterplot tooltip */
+.tooltip {
+    display: none;
+    max-width: 280px;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0 1rem;
+    background: #fff8ef;
+    border: 1px solid #d97736;
+    border-radius: 6px;
+    color: #4b3024;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(75, 48, 36, 0.12);
+}
+
+.tooltip.visible {
+    display: block;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+    #histogram,
+    #scatterplot {
+        min-height: 260px;
+    }
+
+    .axis text {
+        font-size: 10px;
+    }
+
+    .axis-label {
+        font-size: 11px;
+    }
+
+    .chart-title {
+        font-size: 15px;
+    }
+
+    #screen-filters {
+        gap: 0.4rem;
+    }
+}
